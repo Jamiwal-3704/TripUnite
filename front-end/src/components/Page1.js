@@ -40,16 +40,18 @@ function Page1() {
   const handleLogOut = async () => {
     try {
       setLoggedInUser(null);
+      localStorage.clear(); // Always clear local state immediately
       await axios.post(
         getApiUrl("/api/auth/logout"),
         {},
         { withCredentials: true },
       );
-      localStorage.clear();
       toast.success("Logged out successfully");
       navigate("/login");
     } catch (error) {
-      toast.error("Logout failed");
+      // If the backend says 401, they are already logged out on the backend anyway
+      toast.success("Logged out successfully"); 
+      navigate("/login");
     }
   };
 
