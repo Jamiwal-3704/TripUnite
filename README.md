@@ -1,253 +1,161 @@
-# TripUnite
+# 🌍 TripUnite
 
 <p align="center">
-	<strong>A modern travel companion platform for discovering trips, meeting people, and planning journeys together.</strong><br />
-	Built with React, Node.js, Express, Supabase, and AI-assisted trip planning.
+  <strong>Find your tribe. Explore the world.</strong><br />
+  A modern, full-stack travel companion platform for discovering trips, meeting people, and planning journeys together.
 </p>
 
 <p align="center">
-	<img alt="React" src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" />
-	<img alt="Node.js" src="https://img.shields.io/badge/Node.js-1F2937?style=for-the-badge&logo=node.js&logoColor=22C55E" />
-	<img alt="Express" src="https://img.shields.io/badge/Express-111827?style=for-the-badge&logo=express&logoColor=FFFFFF" />
-	<img alt="Supabase" src="https://img.shields.io/badge/Supabase-0F172A?style=for-the-badge&logo=supabase&logoColor=3ECF8E" />
-	<img alt="Vercel" src="https://img.shields.io/badge/Vercel-111827?style=for-the-badge&logo=vercel&logoColor=FFFFFF" />
+  <img alt="React" src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" />
+  <img alt="Node.js" src="https://img.shields.io/badge/Node.js-1F2937?style=for-the-badge&logo=node.js&logoColor=22C55E" />
+  <img alt="Express" src="https://img.shields.io/badge/Express-111827?style=for-the-badge&logo=express&logoColor=FFFFFF" />
+  <img alt="Supabase" src="https://img.shields.io/badge/Supabase-0F172A?style=for-the-badge&logo=supabase&logoColor=3ECF8E" />
+  <img alt="Tailwind CSS" src="https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" />
 </p>
 
-## What TripUnite Is
+---
 
-TripUnite is a full-stack travel companion platform designed to make group travel easier, friendlier, and more engaging. It brings together a polished frontend, a secure backend, AI features, and a public showcase page so the project can be presented clearly as a real product.
+## 📸 Screenshots
 
-## Why It Exists
+| 🔍 Explore Destinations | 💬 Feedback & Ratings |
+| :---: | :---: |
+| <img src="screenshots/explore.png" alt="Explore Page" width="400"/> | <img src="screenshots/feedback.png" alt="Feedback Page" width="400"/> |
 
-Travel feels better when it is shared. TripUnite was built to help people:
+| 👨‍💻 Creator Profile | 🛠️ Tech Stack |
+| :---: | :---: |
+| <img src="screenshots/about.png" alt="About Creator" width="400"/> | <img src="screenshots/techstack.png" alt="Tech Stack" width="400"/> |
 
-- Find travel companions for a destination, route, or trip idea
-- Create and join trips through a guided flow
-- Plan journeys with AI support
-- Explore trip ideas in a cleaner, more visual interface
-- Contact the creator for collaboration, freelance work, or follow-up projects
+| 📞 Contact Us | 📊 User Dashboard |
+| :---: | :---: |
+| <img src="screenshots/contact.png" alt="Contact Page" width="400"/> | <img src="screenshots/dashboard.png" alt="Dashboard" width="400"/> |
 
-## What Makes It Stand Out
+---
 
-TripUnite is not just a demo page. It includes product-level details that make it easier to present, test, and expand:
+## 🚀 What is TripUnite?
 
-- A responsive React frontend with route-based navigation
-- A Node.js and Express backend with controller-based structure
-- Authentication and user session handling
-- Trip creation and join-trip workflows
-- An AI chatbot for quick travel-related assistance
-- Supabase-backed data access and schema support
-- Language switching for a more inclusive UI
-- A dedicated Showcase page for features, value highlights, and presentation copy
-- A contact-friendly About page with direct links and a stronger portfolio story
+Travel feels better when it is shared. **TripUnite** was built to solve the hardest part of group travel: finding the right people to go with.
 
-## Features By Area
+It is a full-stack platform that allows users to:
+- 🔍 **Find travel companions** based on destination and travel style
+- 🏕️ **Create and join trips** through a guided, intuitive flow
+- 🤖 **Plan journeys** with a built-in AI travel assistant
+- 🌙 **Seamlessly switch** between premium Dark and Light modes
+- 🌍 **Experience a localized UI** with built-in Language Selection
 
-### User Experience
+## ✨ Key Features
 
-- Hero sections that introduce the app clearly
-- Dark, modern visual styling with polished cards and gradients
-- Navigation that keeps the experience easy to follow
-- Responsive layouts for desktop and mobile
-- A route loader that makes page transitions feel smoother
+### User Experience (UI/UX)
+- **Glassmorphism Aesthetic**: Modern, translucent UI elements with smooth micro-animations.
+- **Global Theme System**: Robust light/dark mode toggle persisting across all pages.
+- **Form Validation**: Inline, real-time client-side validation for all forms (Contact, Feedback, Login/Signup).
+- **Interactive Feedback**: Dynamic star-rating system with hover states.
 
-### Product Flow
+### Core Product Flow
+- **Authentication**: Secure JWT-based login and registration.
+- **Trip Dashboard**: A centralized hub to manage created trips and review join requests.
+- **Interactive Chatbot**: AI-powered travel assistant integrated directly into the app.
+- **Language Selector**: Premium animated dropdown for seamless i18n localization (English/Hindi).
+- **Showcase Page**: A dedicated presentation page highlighting product strengths and mock testimonials.
 
-- Trip creation for organizing travel plans
-- Trip joining for users who want to participate in existing trips
-- Dashboard views for user activity and management
-- Feedback and social interaction areas
-- A chatbot that can assist with trip-related prompts
-- A Showcase page that helps communicate the value of the app at a glance
+---
 
-### Portfolio Value
-
-- A stronger About page with creator context and tech stack details
-- A showcase-oriented presentation page for recruiters or clients
-- Sample testimonial sections for mock presentation layouts
-- Contact links that make outreach easy
-
-## Tech Stack
+## 🛠️ Tech Stack
 
 ### Frontend
+- **React.js** (Hooks, Context API)
+- **React Router** for seamless SPA navigation
+- **react-i18next** for internationalization
+- **Axios** for API communication
+- **Tailwind CSS / Custom CSS Variables** for responsive design
 
-- React
-- React Router
-- React Icons
-- React i18next
-- Axios
-- React Toastify
-- Slick Carousel
-- Tailwind CSS tooling
+### Backend & Database
+- **Node.js & Express.js**
+- **Supabase** (PostgreSQL) for scalable database management
+- **JWT (JSON Web Tokens)** for secure authentication
+- **Bcrypt** for password hashing
+- **Google Generative AI SDK** for the chatbot
 
-### Backend
+---
 
-- Node.js
-- Express
-- JSON Web Token
-- bcrypt
-- CORS
-- cookie-parser
-- express-validator
-- express-rate-limit
-- dotenv
-- Supabase SDK
-- Google Generative AI SDK
-- Zod
+## 💻 Getting Started (Local Development)
 
-## Key Pages
+### 1. Prerequisites
+- Node.js (v18+)
+- Supabase Project (for database credentials)
+- Gemini API Key (for AI features)
 
-- Home: the main entry point and product introduction
-- Login / Signup: authentication flow
-- Main: core app navigation and landing content
-- Dashboard: user-focused area
-- Create: trip creation flow
-- Join: trip joining flow
-- About: creator profile, stack, and project story
-- Showcase: feature presentation and sample testimonials
-- Contact: direct communication and social links
-
-## Repository Layout
-
-```text
-TripUnite/
-├── front-end/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── context/
-│   │   └── util/
-│   └── public/
-├── back-end/
-│   ├── controllers/
-│   ├── routes/
-│   ├── db/
-│   ├── middleware/
-│   └── scripts/
-└── README.md
-```
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js 18 or newer
-- npm
-- A Supabase project or compatible backend setup
-- A Gemini API key if you want the AI chatbot features enabled locally
-
-### Install Dependencies
-
-From the project root:
-
+### 2. Clone & Install
 ```bash
+git clone https://github.com/Jamiwal-3704/TripUnite.git
+cd TripUnite
+
+# Install backend dependencies
 cd back-end
 npm install
+
+# Install frontend dependencies
 cd ../front-end
 npm install
 ```
 
-## Environment Variables
+### 3. Environment Variables
+Create `.env` files based on the provided `.env.example` templates.
 
-Create local environment files using the examples provided in the repository.
-
-### Backend
-
-Set these values in `back-end/.env`:
-
-- `MONGODB_URI`
-- `jwt_secret`
-- `GEMINI_API_KEY`
-- `CORS_ORIGIN` - comma-separated frontend origins
-
-### Frontend
-
-Set this value in `front-end/.env`:
-
-- `REACT_APP_API_BASE_URL` - backend URL
-
-## Run Locally
-
-### Start the Backend
-
-```bash
-cd back-end
-npm run dev
+**`back-end/.env`**:
+```env
+PORT=8000
+jwt_secret=your_super_secret_jwt_key
+GEMINI_API_KEY=your_gemini_api_key
+CORS_ORIGIN=http://localhost:3000
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
 ```
 
-### Start the Frontend
+**`front-end/.env`**:
+```env
+REACT_APP_API_BASE_URL=http://localhost:8000
+REACT_APP_SUPABASE_URL=https://your-project.supabase.co
+REACT_APP_SUPABASE_ANON_KEY=your_anon_key
+```
+
+### 4. Run the App
+Start both servers simultaneously in two terminal windows:
 
 ```bash
+# Terminal 1 (Backend)
+cd back-end
+npm run dev
+
+# Terminal 2 (Frontend)
 cd front-end
 npm start
 ```
+- **Frontend**: `http://localhost:3000`
+- **Backend API**: `http://localhost:8000`
 
-### Local URLs
+---
 
-- Frontend: `http://localhost:3000`
-- Backend health check: `http://localhost:8000/health`
+## ☁️ Deployment
 
-## Production Build
+TripUnite is ready to be deployed to modern serverless platforms.
 
-```bash
-cd front-end
-npm run build
-```
+### Frontend (Recommended: Vercel)
+1. Import the repository to Vercel.
+2. Set the **Root Directory** to `front-end`.
+3. Add the Frontend Environment Variables in the Vercel dashboard.
+4. Deploy!
 
-## Deployment
+### Backend (Recommended: Railway or Render)
+1. Import the repository.
+2. Set the **Root Directory** to `back-end`.
+3. Add the Backend Environment Variables.
+4. Ensure `CORS_ORIGIN` matches your deployed Vercel frontend URL.
 
-TripUnite is structured for Vercel deployment as separate frontend and backend projects.
+---
 
-### Frontend Deployment
+## 🤝 Contributing
+Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/Jamiwal-3704/TripUnite/issues).
 
-- Root directory: `front-end`
-- Build command: `npm run build`
-- Output directory: `build`
-- Set `REACT_APP_API_BASE_URL` to your deployed backend URL
-
-### Backend Deployment
-
-- Root directory: `back-end`
-- Serverless entry: `api/index.js`
-- Copy the backend environment values into deployment settings
-- Set `CORS_ORIGIN` to your frontend deployment URL
-
-### After Deployment
-
-Verify these flows first:
-
-- Backend health endpoint responds correctly
-- Login and signup work end to end
-- Trip creation and joining work properly
-- Chatbot and showcase pages load without issues
-
-## Notes on the Showcase Page
-
-The Showcase page was added to make the project easier to present as a portfolio piece. It includes:
-
-- Feature highlights
-- Clearer product messaging
-- Stronger call-to-action buttons
-- Sample testimonial sections for presentation purposes
-
-The testimonials are placeholder presentation copy. Replace them with real verified quotes before treating them as authentic endorsements.
-
-## Scripts
-
-### Frontend
-
-- `npm run dev` - start the React development server
-- `npm start` - start the React development server
-- `npm run build` - create a production build
-- `npm test` - run the test runner
-
-### Backend
-
-- `npm run dev` - start the backend with nodemon
-- `npm start` - start the backend with node
-- `npm run smoke:test` - run the smoke test script
-
-## Why This Project Feels Complete
-
-TripUnite combines product thinking, interface polish, backend structure, AI support, and a showcase flow that makes the application easier to explain to recruiters, collaborators, or potential clients.
-
-It is now positioned less like a rough demo and more like a real product story with a clear vision, visible features, and a better presentation layer.
+<p align="center">
+  Designed & Built with ❤️ by <a href="https://github.com/Jamiwal-3704">Jamiwal-3704</a>
+</p>
