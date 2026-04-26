@@ -22,10 +22,15 @@ const limiter = rateLimit({
 });
 
 const app = express();
-const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:3000")
-  .split(",")
-  .map((origin) => origin.trim())
-  .filter(Boolean);
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://tripunite.vercel.app"
+].concat(
+  (process.env.CORS_ORIGIN || "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean)
+);
 
 app.set("trust proxy", 1);
 app.use(
