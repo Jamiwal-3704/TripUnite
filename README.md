@@ -27,7 +27,7 @@
 
 | 📞 Contact Us | 📊 User Dashboard |
 | :---: | :---: |
-| <img src="screenshots/contact.png" alt="Contact Page" width="400"/> | <img src="screenshots/dashboard.png" alt="Dashboard" width="400"/> |
+| <img src="screenshots/contactUs.png" alt="Contact Page" width="400"/> | <img src="screenshots/dashboard.png" alt="Dashboard" width="400"/> |
 
 ---
 
