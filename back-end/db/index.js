@@ -1,13 +1,15 @@
-const mongoose = require("mongoose");
+const { supabase } = require("./supabase");
 
 const connectDB = async () => {
-  console.dev(process.env.MONGODB_URI);
-  try {
-    const con = await mongoose.connect(`${process.env.MONGODB_URI}`);
-    console.dev("mongoDb connected : ", con.connection.host);
-  } catch (error) {
-    console.dev("MongoDb connecton error : ", error);
+  const { error } = await supabase
+    .from("users")
+    .select("id", { count: "exact", head: true });
+
+  if (error) {
+    throw new Error(`Supabase connection failed: ${error.message}`);
   }
+
+  return { status: "ok" };
 };
 
 module.exports = connectDB;

@@ -1,27 +1,42 @@
-const jwt = require("jsonwebtoken")
-const User = require("../models/User");
-exports.verifyJwt =async  (req,res,next)=>{
-  console.log("first")
-     try {
+const jwt = require("jsonwebtoken");
+const { supabase } = require("../db/supabase");
+exports.verifyJwt = async (req, res, next) => {
+  try {
+    const token =
+      req.cookies?.AccessToken ||
+      req.header("authorization")?.replace("Bearer ", "");
+    if (!token) {
+      return res.status(401).json({ message: "Token is required" });
+    }
+    const decodedToken = jwt.verify(token, process.env.jwt_secret);
 
-        const token =  req.cookies?.AccessToken || req.header("authorization")?.replace("Bearer ", "");
-        if(!token){
-            res.status(401).json({message: "Token is required"})
-        }
-        const decodedToken = jwt.verify(token,process.env.jwt_secret);
-        
-        if(!decodedToken){
-          res.status(401).json({message: "token is invalid"});
-        }
+    if (!decodedToken) {
+      return res.status(401).json({ message: "token is invalid" });
+    }
 
-        const user =await User.findById(decodedToken.id);
+    const { data: user, error: userError } = await supabase
+      .from("users")
+      .select("id, full_name, email, role")
+      .eq("id", decodedToken.id)
+      .maybeSingle();
 
-        if(!user){
-           res.status(401).json({message: "user is not found"});
-        }
-        req.user = user;
-        next();
-     }catch (error) {
-         console.error(error);
-     }
-}
+    if (userError) {
+      return res.status(401).json({ message: "user is not found" });
+    }
+
+    if (!user) {
+      return res.status(401).json({ message: "user is not found" });
+    }
+    req.user = {
+      id: user.id,
+      _id: user.id,
+      fullName: user.full_name,
+      email: user.email,
+      role: user.role || "traveler",
+    };
+    next();
+  } catch (error) {
+    console.error(error);
+    return res.status(401).json({ message: "Unauthorized" });
+  }
+};

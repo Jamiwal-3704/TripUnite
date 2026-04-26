@@ -1,107 +1,161 @@
-import React, { useState, useEffect,useContext } from "react";
+import React, { useState, useEffect } from "react";
 import "./Page1.css";
 
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import LanguageSelector from "./LanguageSelector";
 import axios from "axios";
-import { toast, ToastContainer} from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { UserContext } from '../context/userContext';
+import { getApiUrl } from "../util/api";
+import BrandLogo from "./common/BrandLogo";
+import FlightPath from "./animations/FlightPath";
+import ThemeToggle from "./common/ThemeToggle";
+
 function Page1() {
-  const [userName,setUsername] = useState(null);
+  const [userName, setUsername] = useState(null);
+  const [scrolled, setScrolled] = useState(false);
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [loggedInUser, setLoggedInUser] = useState(false);
 
   useEffect(() => {
-    const storedLocalData = localStorage.getItem('userData');
-    const isAuthenticated = localStorage.getItem('isAuthenticated');
-    if (isAuthenticated === 'true' && storedLocalData) {
-      const userData = JSON.parse(storedLocalData);// Parse the stored JSON data
+    const storedLocalData = localStorage.getItem("userData");
+    const isAuthenticated = localStorage.getItem("isAuthenticated");
+    if (isAuthenticated === "true" && storedLocalData) {
+      const userData = JSON.parse(storedLocalData);
       setLoggedInUser(true);
-      // console.log(userData.user.fullName);
-      setUsername(userData.user.fullName); // Use the parsed data
+      setUsername(userData.user.fullName);
     }
+
+    // Scroll event listener for navbar background
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 100);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-  function visibleHandler1() {
-    document.querySelector(".buttons").classList.toggle("visible");
-  }
+
   const handleLogOut = async () => {
     try {
       setLoggedInUser(null);
-      await axios.post("http://localhost:8000/api/auth/logout", {}, { withCredentials: true });
+      await axios.post(
+        getApiUrl("/api/auth/logout"),
+        {},
+        { withCredentials: true },
+      );
       localStorage.clear();
       toast.success("Logged out successfully");
       navigate("/login");
-    } 
-    catch (error) {
+    } catch (error) {
       toast.error("Logout failed");
     }
   };
 
+  const handleExplore = () => {
+    navigate("/main");
+  };
+
   return (
     <div className="page">
-      <nav className="navbar1">
-        <Link to={"/"} style={{ color: "inherit", textDecoration: "inherit" }}>
-          <div className="about-logo"></div>
+
+      {/* ── Premium Navbar ── */}
+      <nav className={`navbar1 ${scrolled ? "scrolled" : ""}`}>
+        {/* LEFT: Logo */}
+        <Link to="/" style={{ textDecoration: "none" }}>
+          <BrandLogo />
         </Link>
-        <div className="options1">
-          <div className="lang1">
-            <LanguageSelector />
-          </div>
-          <Link
-            to={"/about"}
-            style={{ color: "inherit", textDecoration: "inherit" }}
-          >
-            <div className="about1">{t("about")}</div>
-          </Link>
+
+        {/* CENTER: Nav links pill */}
+        <div className="navbar-items">
+          <LanguageSelector />
+          <Link to="/about" className="nav-link">{t("about")}</Link>
+          <Link to="/contact" className="nav-link">{t("contact")}</Link>
+        </div>
+
+        {/* RIGHT: Auth + Theme toggle */}
+        <div className="navbar-right">
           {loggedInUser ? (
-            <div className="contact1" onClick={visibleHandler1}>
-              {t("Welcome")} {userName}
-            </div>
+            <>
+              <span className="welcome-text">👤 {userName}</span>
+              <Link to="/dashboard">
+                <button className="btn-primary">{t("Dashboard")}</button>
+              </Link>
+              <button className="btn-danger" onClick={handleLogOut}>{t("logout")}</button>
+            </>
           ) : (
-            <Link
-              to={"/login"}
-              style={{ color: "inherit", textDecoration: "inherit" }}
-            >
-              <div className="contact1">{t("login")}</div>
-            </Link>
+            <>
+              <Link to="/login">
+                <button className="btn-primary">{t("login")}</button>
+              </Link>
+              <Link to="/signup">
+                <button className="btn-secondary">{t("signup")}</button>
+              </Link>
+            </>
           )}
-          <div className="buttons flex flex-col gap-2 absolute top-20 right-16 visible">
-            <button className="bg-[#a767e3] rounded-xl p-2" onClick={handleLogOut}>
-              Log Out
-            </button>
-            <Link to={'/dashboard'}>
-            <button className="bg-[#a767e3] rounded-xl p-2 ">
-              Dashboard
-            </button>
-            </Link>
-           
-          </div>
-          
+          <div className="nav-divider" />
+          <ThemeToggle />
         </div>
       </nav>
-      <div className="mainbody">
-        <h1 className="title1">{t("discover")}</h1>
-        <p className="TripUnite">TripUnite</p>
 
-        <div className="start">
-          <button>{t("getStarted")}</button>
+      <FlightPath />
+
+      <div className="hero-section">
+        <div className="hero-overlay"></div>
+        <div className="hero-content">
+          <div className="hero-subtitle-top">Explore the World</div>
+          <h1 className="hero-title">Discover Amazing Destinations</h1>
+          <p className="hero-subtitle">
+            Join group tours and make unforgettable memories with travelers from
+            around the world
+          </p>
+
+          <div className="hero-search">
+            <input
+              type="text"
+              placeholder={t("search")}
+              className="search-input"
+            />
+            <button className="btn-search" onClick={handleExplore}>
+              🔍 Search
+            </button>
+          </div>
+
+          <button className="btn-explore" onClick={handleExplore}>
+            ✈️ Explore Trips
+          </button>
         </div>
-
-        <input
-          type="text"
-          placeholder={t("search")}
-          className="search_bar"
-        ></input>
       </div>
 
-      <Link to={"/main"}>
-        <div className="explore">
-          <button>{t("explore")}</button>
+      {/* Content Below Hero */}
+      <section className="content-section">
+        <h2>Why Choose TripUnite?</h2>
+        <p>
+          TripUnite is a place where travelers can chart their own course, where
+          stories unfold in unexpected places and discovery happens one
+          adventure at a time.
+        </p>
+        <div className="features-grid">
+          <div className="feature-card">
+            <div className="feature-icon">🌍</div>
+            <h3>Global Destinations</h3>
+            <p>Explore destinations worldwide with experienced guides</p>
+          </div>
+          <div className="feature-card">
+            <div className="feature-icon">👥</div>
+            <h3>Meet Fellow Travelers</h3>
+            <p>Connect with like-minded adventurers from around the globe</p>
+          </div>
+          <div className="feature-card">
+            <div className="feature-icon">🎒</div>
+            <h3>Curated Experiences</h3>
+            <p>Handpicked trips that create lasting memories</p>
+          </div>
         </div>
-      </Link>
+      </section>
+
+      <ToastContainer />
     </div>
   );
 }

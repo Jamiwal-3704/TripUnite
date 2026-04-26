@@ -1,319 +1,268 @@
-import React, { useState } from 'react';
-import './Create.css';
-import { Link, useNavigate } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import LanguageSelector from './LanguageSelector';
+import React, { useState } from "react";
+import "./Create.css";
+import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import LanguageSelector from "./LanguageSelector";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import axios from 'axios';
-// Adjust the import based on your file structure
+import axios from "axios";
+import { getApiUrl } from "../util/api";
+import BrandLogo from "./common/BrandLogo";
+import ThemeToggle from "./common/ThemeToggle";
 
 function Create() {
-    const { t } = useTranslation();
-    const navigate = useNavigate();
+  const { t } = useTranslation();
+  const navigate = useNavigate();
 
-    // Define state for all form fields
-    const [formData, setFormData] = useState({
-        Name: '',
-        Destination: '',
-        Description: '',
-        StartDate: '',
-        EndDate: '',
-        estimatedBudget: '',
-        TravellerCount: '',
-        localGuide: false,
-        MeetUPLocation: '',
-        Gender: '',
-        MinAge: '',
-        MaxAge: '',
-        Remarks: ''
-    });
+  const [formData, setFormData] = useState({
+    Name: "",
+    Destination: "",
+    Description: "",
+    StartDate: "",
+    EndDate: "",
+    estimatedBudget: "",
+    TravellerCount: "",
+    localGuide: false,
+    MeetUPLocation: "",
+    Gender: "",
+    MinAge: "",
+    MaxAge: "",
+    Remark: "",
+  });
 
-    // Handle input change
-    function handleInputChange(e) {
-        const { name, value } = e.target;
-        setFormData(prevData => ({
-            ...prevData,
-            [name]: value
-        }));
+  function handleInputChange(e) {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  }
+
+  function handleRadioChange(e) {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value === "true" }));
+  }
+
+  // Guard: redirect to login if not authenticated
+  const isAuthenticated = localStorage.getItem("isAuthenticated");
+  if (isAuthenticated !== "true") {
+    toast.error("Please log in to create a trip");
+    navigate("/login");
+    return null;
+  }
+
+  async function submithandler(e) {
+    e.preventDefault();
+    try {
+      const travellerCount = formData.TravellerCount
+        ? parseInt(formData.TravellerCount)
+        : undefined;
+      const minAge = parseInt(formData.MinAge);
+      const maxAge = parseInt(formData.MaxAge);
+      if (isNaN(minAge) || isNaN(maxAge)) {
+        toast.error("Please enter valid Min and Max age");
+        return;
+      }
+      await axios.post(
+        getApiUrl("/api/auth/createTrips"),
+        {
+          ...formData,
+          estimatedBudget: parseFloat(formData.estimatedBudget),
+          TravellerCount: travellerCount,
+          MinAge: minAge,
+          MaxAge: maxAge,
+        },
+        { withCredentials: true },
+      );
+      toast.success("TRIP CREATED");
+      navigate("/main");
+    } catch (error) {
+      const msg =
+        error?.response?.data?.message ||
+        error?.response?.data?.msg ||
+        "Error creating trip — check all fields and try again";
+      toast.error(msg);
+      console.error("Error creating trip:", error?.response?.data || error);
     }
+  }
 
-    // Handle boolean value for radio buttons (localGuide)
-    function handleRadioChange(e) {
-        const { name, value } = e.target;
-        setFormData(prevData => ({
-            ...prevData,
-            [name]: value === 'true' // Convert to boolean
-        }));
-    }
+  return (
+    <div className="create-wrapper">
 
-    // Form submit handler
-    async function submithandler(e) {
-        e.preventDefault();
-
-        // Validate the form data with Zod
-        try {
-            const response = await axios.post(
-                "http://localhost:8000/api/auth/createTrips", 
-                {
-                    ...formData,
-                    estimatedBudget: parseFloat(formData.estimatedBudget),
-                    TravellerCount: formData.TravellerCount ? parseInt(formData.TravellerCount) : undefined,
-                    MinAge: parseInt(formData.MinAge),
-                    MaxAge: parseInt(formData.MaxAge),
-                },
-                { withCredentials: true } // Ensure cookies are included
-            );
-
-            toast.success("TRIP CREATED");
-            navigate('/main');
-        } catch (error) {
-            toast.error("Error creating trip");
-            console.error("Error creating trip:", error.errors || error); // Log detailed error from Zod
-        }
-    }
-
-    return (
-        <div className="create-wrapper">
-            <div className="create-container">
-                {/* navbar */}
-                <div className="create-navbar">
-                    <Link to="/" style={{ color: 'inherit', textDecoration: 'inherit' }}>
-                        <div className="create-logo"></div>
-                    </Link>
-                    <ul className="create-options">
-                        <Link to="/" style={{ color: 'inherit', textDecoration: 'inherit' }}>
-                            <ul className="create-home">{t('home')}</ul>
-                        </Link>
-                        <ul className="create-lang"><LanguageSelector /></ul>
-                        <Link to="/about" style={{ color: 'inherit', textDecoration: 'inherit' }}>
-                            <ul className="create-about">{t('about')}</ul>
-                        </Link>
-                        <Link to="/contact" style={{ color: 'inherit', textDecoration: 'inherit' }}>
-                            <ul className="create-contact">{t('contact')}</ul>
-                        </Link>
-                    </ul>
-                </div>
-
-                <form className="create-section" onSubmit={submithandler}>
-                    {/* left section */}
-                    <div className="create-left">
-                        <h1>{t('tailored')}</h1>
-                    </div>
-                    {/* main form */}
-                    <div className="create-right">
-                        <h2 className="create-head">{t('createtrip')}</h2>
-                        <div className="create-name">
-                            <div className="create-placeholder">
-                                <p>{t('nameoftrip')}</p>
-                                <input
-                                    type="text"
-                                    className="create-tripinput1"
-                                    name="Name"
-                                    value={formData.Name}
-                                    onChange={handleInputChange}
-                                    required
-                                />
-                            </div>
-                            <div className="create-input">
-                                <p>{t('Destinationfoot')}</p>
-                                <input
-                                    type="text"
-                                    className="create-tripinput1"
-                                    name="Destination"
-                                    value={formData.Destination}
-                                    onChange={handleInputChange}
-                                    required
-                                />
-                            </div>
-                        </div>
-                        <div className="create-description">
-                            <p>{t('desc')}</p>
-                            <input
-                                type="text"
-                                id="create-description"
-                                className="create-tripinput1"
-                                name="Description"
-                                value={formData.Description}
-                                onChange={handleInputChange}
-                                required
-                            />
-                        </div>
-                        <div>
-                            <p>{t('date')}</p>
-                            <div className="create-date">
-                                <div className="create-start">
-                                    <p>{t('start')}</p>
-                                    <input
-                                        type="date"
-                                        className="create-tripinput1"
-                                        name="StartDate"
-                                        value={formData.StartDate}
-                                        onChange={handleInputChange}
-                                        required
-                                    />
-                                </div>
-                                <div className="create-end">
-                                    <p>{t('end')}</p>
-                                    <input
-                                        type="date"
-                                        className="create-tripinput1"
-                                        name="EndDate"
-                                        value={formData.EndDate}
-                                        onChange={handleInputChange}
-                                        required
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                        <div className="budget-meet">
-                            <div className="create-budget">
-                                <p>{t('estimatedbudget')}</p>
-                                <input
-                                    type="number"
-                                    className="create-tripinput1"
-                                    name="estimatedBudget"
-                                    value={formData.estimatedBudget}
-                                    onChange={handleInputChange}
-                                    required
-                                />
-                            </div>
-                            <div className="create-meetup">
-                                <p>{t('meetup')}</p>
-                                <input
-                                    type="text"
-                                    className="create-tripinput1"
-                                    name="MeetUPLocation"
-                                    value={formData.MeetUPLocation}
-                                    onChange={handleInputChange}
-                                    required
-                                />
-                            </div>
-                        </div>
-
-                        <div className="create-guide">
-                            <p>{t('NeedaLocalGuide')}</p>
-                            <div className="create-radio">
-                                <div className="create-yes">
-                                    <input
-                                        type="radio"
-                                        id="yes"
-                                        name="localGuide"
-                                        value="true"
-                                        checked={formData.localGuide === true}
-                                        onChange={handleRadioChange}
-                                    />
-                                    <label htmlFor="yes">{t('yes')}</label>
-                                </div>
-                                <div className="create-no">
-                                    <input
-                                        type="radio"
-                                        id="no"
-                                        name="localGuide"
-                                        value="false"
-                                        checked={formData.localGuide === false}
-                                        onChange={handleRadioChange}
-                                    />
-                                    <label htmlFor="no">{t('no')}</label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="create-members">
-                            <p>{t('travellers')}</p>
-                            <input
-                                type="number"
-                                className="create-tripinput1"
-                                name="TravellerCount"
-                                value={formData.TravellerCount}
-                                onChange={handleInputChange}
-                            />
-                        </div>
-
-                        <div>
-                            <p>{t('preference')}</p>
-                            <div className="create-radio">
-                                <div className="create-girls">
-                                    <input
-                                        type="radio"
-                                        id="female"
-                                        name="Gender"
-                                        value="female"
-                                        checked={formData.Gender === 'female'}
-                                        onChange={handleInputChange}
-                                    />
-                                    <label htmlFor="female">{t('onlyfemale')}</label>
-                                </div>
-                                <div className="create-boys">
-                                    <input
-                                        type="radio"
-                                        id="male"
-                                        name="Gender"
-                                        value="male"
-                                        checked={formData.Gender === 'male'}
-                                        onChange={handleInputChange}
-                                    />
-                                    <label htmlFor="male">{t('onlymale')}</label>
-                                </div>
-                                <div className="create-no_pref">
-                                    <input
-                                        type="radio"
-                                        id="none"
-                                        name="Gender"
-                                        value="None"
-                                        checked={formData.Gender === 'None'}
-                                        onChange={handleInputChange}
-                                    />
-                                    <label htmlFor="none">{t('nopreference')}</label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <p>{t('agerange')}</p>
-                            <div className="create-age">
-                                <input
-                                    type="number"
-                                    className="create-tripinput1"
-                                    name="MinAge"
-                                    placeholder={t('min')}
-                                    value={formData.MinAge}
-                                    onChange={handleInputChange}
-                                    required
-                                />
-                             <input
-                                    type="number"
-                                    className="create-tripinput1"
-                                    name="MaxAge"
-                                    placeholder={t('max')}
-                                    value={formData.MaxAge}
-                                    onChange={handleInputChange}
-                                    required
-                                />
-                            </div>
-                        </div>
-
-                        <div className="create-remark">
-                            <p>{t('remarks')}</p>
-                            <input
-                                type="text"
-                                className="create-tripinput1"
-                                name="Remarks"
-                                value={formData.Remarks}
-                                onChange={handleInputChange}
-                                id="remarkstext"
-                            />
-                        </div>
-
-                        <button type="submit" className="create-button">
-                            {t('create')}
-                        </button>
-                    </div>
-                </form>
-            </div>
+      {/* ── Navbar ── */}
+      <nav className="create-nav">
+        <Link to="/" style={{ textDecoration: "none" }}>
+          <BrandLogo />
+        </Link>
+        <div className="create-nav-pill">
+          <LanguageSelector />
+          <Link to="/" className="create-nav-link">{t("home")}</Link>
+          <Link to="/about" className="create-nav-link">{t("about")}</Link>
+          <Link to="/contact" className="create-nav-link">{t("contact")}</Link>
         </div>
-    );
+        <div className="create-nav-right">
+          <ThemeToggle />
+        </div>
+      </nav>
+
+      {/* ── Main layout ── */}
+      <div className="create-body">
+
+        {/* LEFT decorative panel */}
+        <aside className="create-left-panel">
+          <div className="clp-badge">✈ Trip Creator</div>
+          <h1 className="clp-headline">{t("tailored")}</h1>
+          <p className="clp-sub">
+            Set your destination, dates and preferences — the right co-travellers will find you.
+          </p>
+
+          <ul className="clp-features">
+            <li><span className="clp-icon">🗺️</span> Choose any destination worldwide</li>
+            <li><span className="clp-icon">👥</span> Filter by gender & age range</li>
+            <li><span className="clp-icon">💰</span> Set a shared budget estimate</li>
+            <li><span className="clp-icon">📍</span> Define a meetup location</li>
+            <li><span className="clp-icon">🧭</span> Request a local guide</li>
+          </ul>
+
+          {/* decorative glow blob */}
+          <div className="clp-glow" />
+        </aside>
+
+        {/* RIGHT form card */}
+        <form className="create-card" onSubmit={submithandler}>
+          <h2 className="create-card-title">{t("createtrip")}</h2>
+
+          {/* Row 1: Name + Destination */}
+          <div className="cf-row">
+            <div className="cf-field">
+              <label className="cf-label">{t("nameoftrip")}</label>
+              <input className="cf-input" type="text" name="Name"
+                value={formData.Name} onChange={handleInputChange} required
+                placeholder="e.g. Goa Beach Vibes" />
+            </div>
+            <div className="cf-field">
+              <label className="cf-label">{t("Destinationfoot")}</label>
+              <input className="cf-input" type="text" name="Destination"
+                value={formData.Destination} onChange={handleInputChange} required
+                placeholder="e.g. Goa, India" />
+            </div>
+          </div>
+
+          {/* Description */}
+          <div className="cf-field">
+            <label className="cf-label">{t("desc")}</label>
+            <textarea className="cf-input cf-textarea" name="Description"
+              value={formData.Description} onChange={handleInputChange} required
+              placeholder="What's the vibe? Beaches, temples, trekking..." />
+          </div>
+
+          {/* Dates */}
+          <div className="cf-row">
+            <div className="cf-field">
+              <label className="cf-label">{t("start")}</label>
+              <input className="cf-input" type="date" name="StartDate"
+                value={formData.StartDate} onChange={handleInputChange} required />
+            </div>
+            <div className="cf-field">
+              <label className="cf-label">{t("end")}</label>
+              <input className="cf-input" type="date" name="EndDate"
+                value={formData.EndDate} onChange={handleInputChange} required />
+            </div>
+          </div>
+
+          {/* Budget + MeetUp */}
+          <div className="cf-row">
+            <div className="cf-field">
+              <label className="cf-label">{t("estimatedbudget")} (₹)</label>
+              <input className="cf-input" type="number" name="estimatedBudget"
+                value={formData.estimatedBudget} onChange={handleInputChange} required
+                placeholder="e.g. 8000" />
+            </div>
+            <div className="cf-field">
+              <label className="cf-label">{t("meetup")}</label>
+              <input className="cf-input" type="text" name="MeetUPLocation"
+                value={formData.MeetUPLocation} onChange={handleInputChange} required
+                placeholder="e.g. New Delhi Station" />
+            </div>
+          </div>
+
+          {/* Local guide radio */}
+          <div className="cf-field">
+            <label className="cf-label">{t("NeedaLocalGuide")}</label>
+            <div className="cf-radio-group">
+              <label className="cf-radio-label">
+                <input type="radio" name="localGuide" value="true"
+                  checked={formData.localGuide === true} onChange={handleRadioChange} />
+                <span className="cf-radio-custom" />
+                {t("yes")}
+              </label>
+              <label className="cf-radio-label">
+                <input type="radio" name="localGuide" value="false"
+                  checked={formData.localGuide === false} onChange={handleRadioChange} />
+                <span className="cf-radio-custom" />
+                {t("no")}
+              </label>
+            </div>
+          </div>
+
+          {/* Travellers */}
+          <div className="cf-field">
+            <label className="cf-label">{t("travellers")}</label>
+            <input className="cf-input" type="number" name="TravellerCount"
+              value={formData.TravellerCount} onChange={handleInputChange}
+              placeholder="Max group size (optional)" />
+          </div>
+
+          {/* Gender preference */}
+          <div className="cf-field">
+            <label className="cf-label">{t("preference")}</label>
+            <div className="cf-radio-group">
+              <label className="cf-radio-label">
+                <input type="radio" id="female" name="Gender" value="female"
+                  checked={formData.Gender === "female"} onChange={handleInputChange} />
+                <span className="cf-radio-custom" />
+                {t("onlyfemale")}
+              </label>
+              <label className="cf-radio-label">
+                <input type="radio" id="male" name="Gender" value="male"
+                  checked={formData.Gender === "male"} onChange={handleInputChange} />
+                <span className="cf-radio-custom" />
+                {t("onlymale")}
+              </label>
+              <label className="cf-radio-label">
+                <input type="radio" id="none" name="Gender" value="None"
+                  checked={formData.Gender === "None"} onChange={handleInputChange} />
+                <span className="cf-radio-custom" />
+                {t("nopreference")}
+              </label>
+            </div>
+          </div>
+
+          {/* Age range */}
+          <div className="cf-field">
+            <label className="cf-label">{t("agerange")}</label>
+            <div className="cf-row" style={{ marginBottom: 0 }}>
+              <input className="cf-input" type="number" name="MinAge"
+                placeholder={t("min")} value={formData.MinAge}
+                onChange={handleInputChange} required />
+              <input className="cf-input" type="number" name="MaxAge"
+                placeholder={t("max")} value={formData.MaxAge}
+                onChange={handleInputChange} required />
+            </div>
+          </div>
+
+          {/* Remarks */}
+          <div className="cf-field">
+            <label className="cf-label">{t("remarks")} <span style={{opacity:0.5}}>(optional)</span></label>
+            <input className="cf-input" type="text" name="Remark"
+              value={formData.Remark} onChange={handleInputChange}
+              placeholder="Any rules, preferences or notes..." />
+          </div>
+
+          <button type="submit" className="cf-submit">
+            🚀 {t("create")}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
 }
 
 export default Create;
-                                   

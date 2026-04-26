@@ -5,52 +5,74 @@ import { TfiWorld } from "react-icons/tfi";
 import { FaBookBookmark } from "react-icons/fa6";
 import { CiLocationOn } from "react-icons/ci";
 import { AiOutlineLike } from "react-icons/ai";
+
+/* ── Featured Destinations (real image cards) ── */
+const destinations = [
+  { id: 'card1', name: 'Kashmir', dates: 'Jul 12–20', tag: 'Mountains' },
+  { id: 'card2', name: 'Kerala',  dates: 'Jul 5–10',  tag: 'Backwaters' },
+  { id: 'card3', name: 'Mumbai',  dates: 'Jul 10–15', tag: 'City' },
+  { id: 'card4', name: 'Agra',    dates: 'Jul 18–22', tag: 'Heritage' },
+];
+
 function Page2() {
-  const{ t}=useTranslation()
+  const { t } = useTranslation();
+
   return (
-    <div className="page" id="page_2">
-        
-        <div className="features">
-          <div className="box">
-            <div className="head">{t('discoverplaces')}</div>
-            <TfiWorld id="page2-globe"/>
-            <p className="description">{t('uncover')}</p>
-          </div>
-          <div className="box">
-            <div className="head">{t('plantrips')}</div>
-            <FaBookBookmark id="page2-book"/>
-            <p className="description">{t('seameless')}</p>
-          </div>
-          <div className="box">
-            <div className="head">{t('travel')}</div>
-            <CiLocationOn id='page2-location'/>
-            <p className="description">{t('connect')}</p>
-          </div>
-          <div className="box">
-            <div className="head">{t('share')}</div>
-            <AiOutlineLike id='page2-location'/>
-            <p className="description">{t('sharejourney')}</p>
+    <div className="page2-wrapper" id="page_2">
+
+      {/* ── Feature Pills ── */}
+      <div className="p2-features">
+        <div className="p2-feature-item">
+          <span className="p2-feature-icon"><TfiWorld /></span>
+          <div>
+            <div className="p2-feature-title">{t('discoverplaces')}</div>
+            <div className="p2-feature-desc">{t('uncover')}</div>
           </div>
         </div>
-
-        <p className="upcomingtrips">{t('upcomingtrips')}</p>
-
-        <div className="upcoming_trips">
-          <div className="box" id="card1">
-            <p>{t('Kashmir')} <br/> {t('july')}12-20</p> 
+        <div className="p2-feature-item">
+          <span className="p2-feature-icon"><FaBookBookmark /></span>
+          <div>
+            <div className="p2-feature-title">{t('plantrips')}</div>
+            <div className="p2-feature-desc">{t('seameless')}</div>
           </div>
-          <div className="box" id="card2">
-            <p>{t('Kerela')}<br/>{t('july')} 5-10</p>
+        </div>
+        <div className="p2-feature-item">
+          <span className="p2-feature-icon"><CiLocationOn /></span>
+          <div>
+            <div className="p2-feature-title">{t('travel')}</div>
+            <div className="p2-feature-desc">{t('connect')}</div>
           </div>
-          <div className="box" id="card3">
-            <p>{t('Mumbai')} <br/>{t('july')} 10-15</p>
-          </div>
-          <div className="box" id="card4">
-            <p>{t('Agra')} <br/>{t('july')} 18-22</p>
+        </div>
+        <div className="p2-feature-item">
+          <span className="p2-feature-icon"><AiOutlineLike /></span>
+          <div>
+            <div className="p2-feature-title">{t('share')}</div>
+            <div className="p2-feature-desc">{t('sharejourney')}</div>
           </div>
         </div>
       </div>
-  )
+
+      {/* ── Featured Destinations ── */}
+      <div className="p2-destinations-section">
+        <h2 className="p2-section-title">{t('upcomingtrips')}</h2>
+        <p className="p2-section-sub">Handpicked destinations just for you</p>
+
+        <div className="p2-dest-grid">
+          {destinations.map(dest => (
+            <div key={dest.id} className={`p2-dest-card ${dest.id}`}>
+              <div className="p2-dest-overlay" />
+              <div className="p2-dest-tag">{dest.tag}</div>
+              <div className="p2-dest-info">
+                <div className="p2-dest-name">{t(dest.name) || dest.name}</div>
+                <div className="p2-dest-dates">✈ {dest.dates}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+    </div>
+  );
 }
 
-export default Page2
+export default Page2;

@@ -3,222 +3,212 @@ import "./JoinTrip.css";
 import { Link, useNavigate } from "react-router-dom";
 import LanguageSelector from "./LanguageSelector";
 import { useTranslation } from "react-i18next";
-import { UserContext } from '../context/userContext';
+import { UserContext } from "../context/userContext";
 import images from "../image";
-import axios from 'axios'; // Import axios
-import { toast } from 'react-toastify'; // Import toast notifications
+import axios from "axios";
+import { toast } from "react-toastify";
+import { getApiUrl } from "../util/api";
+import BrandLogo from "./common/BrandLogo";
+import ThemeToggle from "./common/ThemeToggle";
 
 function JoinTrip() {
   const { t } = useTranslation();
   const { currentTrip } = useContext(UserContext);
   const [trip, setTrip] = useState(null);
-  const navigate = useNavigate(); // Hook for navigation
-  const [userData, setData] = useState({
-    Name: '',
-    Age: '',
-    Gender: '',
-    Contact: '',
-  });
+  const navigate = useNavigate();
+  const [userData, setData] = useState({ Name: "", Age: "", Gender: "", Contact: "" });
+  const [img, setImg] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
   function handleInputChange(e) {
     const { name, value } = e.target;
-    setData(prevData => ({
-      ...prevData,
-      [name]: value
-    }));
+    setData((prev) => ({ ...prev, [name]: value }));
   }
 
   async function submithandler(e) {
     e.preventDefault();
+    setSubmitting(true);
     try {
-      const response = await axios.post(
-        `http://localhost:8000/api/auth/joinTrips/${currentTrip}`,{
-          ...userData,
-          // Name: parseString(userData.Name),
-          Age: parseInt(userData.Age),
-          // Gender: parseString(userData.Gender),
-          // Contact: parseString(userData.Contact),
-      },{ withCredentials: true}// Send userData directly
+      await axios.post(
+        getApiUrl(`/api/auth/joinTrips/${currentTrip}`),
+        { ...userData, Age: parseInt(userData.Age) },
+        { withCredentials: true },
       );
-
-      toast.success("Trip Successfully joined");
-      navigate('/main');
+      toast.success("🎉 Trip request sent! Awaiting leader approval.");
+      navigate("/main");
     } catch (error) {
-      toast.error("Error Joining trip");
-      console.error("Error joining trip:", error.errors || error); // Log detailed error from Zod
+      const msg = error?.response?.data?.message || "Error joining trip";
+      toast.error(msg);
+      console.error("Error joining trip:", error?.response?.data || error);
+    } finally {
+      setSubmitting(false);
     }
   }
 
   async function fetchTrip() {
-    if (currentTrip) {
-      try {
-        const response = await fetch(`http://localhost:8000/api/auth/trips/${currentTrip}`);
-        if (!response.ok) {
-          throw new Error('Network response was not ok');
-        }
-        const data = await response.json();
-        setTrip(data.trip);
-      } catch (error) {
-        console.error('Error fetching trip:', error);
-      }
+    if (!currentTrip) return;
+    try {
+      const res = await fetch(getApiUrl(`/api/auth/trips/${currentTrip}`));
+      if (!res.ok) throw new Error("Failed to fetch trip");
+      const data = await res.json();
+      setTrip(data.trip);
+    } catch (err) {
+      console.error("Fetch trip error:", err);
     }
   }
 
-  const [img, setImg] = useState('');
-
   useEffect(() => {
-    console.log("current trip id",currentTrip)
     fetchTrip();
-    const randomNumber = Math.floor(Math.random() * 9);
-    if (images[randomNumber]) {
-      setImg(images[randomNumber].url);
-    }
+    const rnd = Math.floor(Math.random() * 9);
+    if (images[rnd]) setImg(images[rnd].url);
   }, [currentTrip]);
 
+  /* Format date: 2026-04-27 → 27/04/2026 */
+  const fmtDate = (d) =>
+    d ? d.substr(0, 10).split("-").reverse().join("/") : "—";
+
   if (!trip) {
-    return <div>Loading...</div>;
+    return (
+      <div className="jt-loading">
+        <div className="jt-spinner" />
+        <p>Loading trip details…</p>
+      </div>
+    );
   }
 
   return (
-    <div className="bg-custom-gradient text-white min-h-screen h-auto">
-      <div className="join-container">
-        <div className="join-navbar">
-          <Link to="/" style={{ color: 'inherit', textDecoration: 'inherit' }}>
-            <div className='join-logo'></div>
-          </Link>
-          <ul className="join-options mt-4">
-            <Link to="/" style={{ color: 'inherit', textDecoration: 'inherit' }}>
-              <ul className="join-home">{t('home')}</ul>
-            </Link>
-            <LanguageSelector className='join-lang' />
-            <Link to="/about" style={{ color: 'inherit', textDecoration: 'inherit' }}>
-              <ul className="join-about">{t('about')}</ul>
-            </Link>
-            <Link to="/contact" style={{ color: 'inherit', textDecoration: 'inherit' }}>
-              <ul className="join-contact">{t('contactus')}</ul>
-            </Link>
-          </ul>
+    <div className="jt-wrapper">
+
+      {/* ── Navbar ── */}
+      <nav className="jt-nav">
+        <Link to="/" style={{ textDecoration: "none" }}>
+          <BrandLogo />
+        </Link>
+        <div className="jt-nav-pill">
+          <LanguageSelector />
+          <Link to="/"       className="jt-nav-link">{t("home")}</Link>
+          <Link to="/about"  className="jt-nav-link">{t("about")}</Link>
+          <Link to="/contact" className="jt-nav-link">{t("contactus")}</Link>
         </div>
+        <div className="jt-nav-right">
+          <ThemeToggle />
+        </div>
+      </nav>
 
-        <div className="flex gap-10 pb-14 px-20 w-full">
-          <div className="flex flex-col gap-10 w-[70%]">
-            <h1 className="text-5xl font-semibold uppercase">{trip.Destination}</h1>
-            <p className="text-[1.5rem] text-justify">{trip.Description}</p>
-            <div className="relative flex gap-5">
-              <div>
-                <div className="date-price">
-                  <p>{t('date')}<br />
-                    <span className="Data">
-                      {trip.StartDate.substr(0, 10).replaceAll("-", "/").split("/").reverse().join("/")} - 
-                      {trip.EndDate.substr(0, 10).replaceAll("-", "/").split("/").reverse().join("/")}
-                    </span>
-                  </p>
-                  <p>{t('EstimatedBugdet')}<br />
-                    <span className="Data">{trip.estimatedBudget} Rs</span>
-                  </p>
-                </div>
+      {/* ── Body ── */}
+      <div className="jt-body">
 
-                <p className="text-lg">{t('meetup')} - <span className="Data">{trip.MeetUPLocation}</span></p>
-                <p className="text-lg">{t('localguide')} - <span className="Data">{trip.localGuide ? t('yes') : t('no')}</span></p>
-                <p className="text-lg">{t('Groupsize')} - <span className="Data">{trip.TravellerCount}</span></p>
-                <p className="text-lg">{t('preference')} - <span className="Data">{trip.Gender}</span></p>
-                <p className="text-lg">{t('age')} - <span className="Data">{trip.MinAge}-{trip.MaxAge}</span></p>
-                <p className="text-lg">{t('tripcreatedby')} - <span className="Data">{trip.createdBy}</span></p>
-              </div>
-              <div 
-                style={{ 
-                  backgroundImage: `url(${img})`, 
-                  width: "320px", 
-                  height: "320px", 
-                  borderRadius: "20px", 
-                  objectFit: "contain", 
-                  display: "flex", 
-                  flexDirection: "column", 
-                  justifyContent: "space-between", 
-                  alignItems: "center", 
-                  marginTop: "-20px" 
-                }}>
-              </div>
+        {/* ── LEFT: trip details ── */}
+        <div className="jt-left">
+
+          {/* hero image + title overlay */}
+          <div className="jt-hero-img" style={{ backgroundImage: `url(${img})` }}>
+            <div className="jt-hero-overlay" />
+            <div className="jt-hero-tag">
+              {trip.Gender === "female" ? "👩 Female Only"
+                : trip.Gender === "male" ? "👨 Male Only"
+                : "🌍 All Genders"}
             </div>
+            <h1 className="jt-destination">{trip.Destination}</h1>
           </div>
 
-          <div className="w-[30%] mr-16 mt-6">
-            <h1 className="text-4xl font-bold text-center mb-4">{t('jointrip')}</h1>
-            <form onSubmit={submithandler}>
-              <div className="bg-[#6e6d6d54] pl-8 py-4 rounded-xl">
-                <div className="w-full">
-                  <p className="join-placeholder">{t('name')}</p>
-                  <input
-                    type="text"
-                    name="Name"
-                    value={userData.Name}
-                    onChange={handleInputChange}
-                    className="bg-[#ceb8f3] rounded-lg h-10 w-[90%] mb-3"
-                  />
-                </div>
-                <div className="w-full">
-                  <p className="join-placeholder">{t('age')}</p>
-                  <input
-                    type="number"
-                    name="Age"
-                    value={userData.Age}
-                    onChange={handleInputChange}
-                    className="bg-[#ceb8f3] rounded-lg h-10 w-[90%] mb-3"
-                  />
-                </div>
-                <div className="join-gender">
-                  <p className="join-placeholder">{t('gender')}</p>
-                  <div className="flex w-full gap-4">
-                    <div className="join-girls">
-                      <input
-                        type="radio"
-                        id="female"
-                        name="Gender"
-                        value="Female"
-                        onChange={handleInputChange}
-                      />
-                      <label htmlFor="female" className="join-placeholder">{t('female')}</label>
-                    </div>
-                    <div className="join-boys">
-                      <input
-                        type="radio"
-                        id="male"
-                        name="Gender"
-                        value="Male"
-                        onChange={handleInputChange}
-                      />
-                      <label htmlFor="male" className="join-placeholder">{t('male')}</label>
-                    </div>
-                    <div className="join-no_pref mb-3">
-                      <input
-                        type="radio"
-                        id="none"
-                        name="Gender"
-                        value="Other"
-                        onChange={handleInputChange}
-                      />
-                      <label htmlFor="none" className="join-placeholder">{t('other')}</label>
-                    </div>
-                  </div>
-                </div>
+          {/* Description */}
+          <p className="jt-description">{trip.Description}</p>
 
-                <div className="join-phone">
-                  <p className="join-placeholder">{t('contact')}</p>
-                  <input
-                    type="number"
-                    name="Contact"
-                    value={userData.Contact}
-                    onChange={handleInputChange}
-                    className="bg-[#ceb8f3] rounded-lg h-10 w-[90%] mb-3"
-                  />
-                </div>
-
-                <div className="join-price mb-3">
-                  <p className="join-placeholder">{t('EstimatedBugdet')} - {trip.estimatedBudget} Rs</p>
-                </div>
-
-                <button className="join-submit" type="submit">{t('join')}</button>
+          {/* Info chips grid */}
+          <div className="jt-info-grid">
+            <div className="jt-chip">
+              <span className="jt-chip-label">📅 Dates</span>
+              <span className="jt-chip-value">
+                {fmtDate(trip.StartDate)} → {fmtDate(trip.EndDate)}
+              </span>
+            </div>
+            <div className="jt-chip">
+              <span className="jt-chip-label">💰 Budget (est.)</span>
+              <span className="jt-chip-value jt-budget">₹{Number(trip.estimatedBudget).toLocaleString()}</span>
+            </div>
+            <div className="jt-chip">
+              <span className="jt-chip-label">📍 Meet Up</span>
+              <span className="jt-chip-value">{trip.MeetUPLocation}</span>
+            </div>
+            <div className="jt-chip">
+              <span className="jt-chip-label">🧭 Local Guide</span>
+              <span className={`jt-chip-value ${trip.localGuide ? "jt-yes" : "jt-no"}`}>
+                {trip.localGuide ? t("yes") : t("no")}
+              </span>
+            </div>
+            <div className="jt-chip">
+              <span className="jt-chip-label">👥 Group Size</span>
+              <span className="jt-chip-value">{trip.TravellerCount || "Open"} travellers</span>
+            </div>
+            <div className="jt-chip">
+              <span className="jt-chip-label">🎂 Age Range</span>
+              <span className="jt-chip-value">{trip.MinAge} – {trip.MaxAge} yrs</span>
+            </div>
+            {trip.Remark && (
+              <div className="jt-chip jt-chip-full">
+                <span className="jt-chip-label">📝 Remarks</span>
+                <span className="jt-chip-value">{trip.Remark}</span>
               </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── RIGHT: join form ── */}
+        <div className="jt-right">
+          <div className="jt-form-card">
+            <h2 className="jt-form-title">Join This Trip</h2>
+            <p className="jt-form-sub">Fill in your details — the trip leader will review your request.</p>
+
+            <form onSubmit={submithandler} className="jt-form">
+              <div className="jt-field">
+                <label className="jt-label">{t("name")}</label>
+                <input className="jt-input" type="text" name="Name"
+                  value={userData.Name} onChange={handleInputChange}
+                  placeholder="Your full name" required />
+              </div>
+
+              <div className="jt-field">
+                <label className="jt-label">{t("age")}</label>
+                <input className="jt-input" type="number" name="Age"
+                  value={userData.Age} onChange={handleInputChange}
+                  placeholder="Your age" required min="10" max="99" />
+              </div>
+
+              <div className="jt-field">
+                <label className="jt-label">{t("gender")}</label>
+                <div className="jt-radio-group">
+                  {[
+                    { val: "Female", label: t("female"), icon: "👩" },
+                    { val: "Male",   label: t("male"),   icon: "👨" },
+                    { val: "Other",  label: t("other"),  icon: "🌍" },
+                  ].map(({ val, label, icon }) => (
+                    <label key={val} className={`jt-radio-pill ${userData.Gender === val ? "active" : ""}`}>
+                      <input type="radio" name="Gender" value={val}
+                        checked={userData.Gender === val}
+                        onChange={handleInputChange} />
+                      {icon} {label}
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div className="jt-field">
+                <label className="jt-label">{t("contact")}</label>
+                <input className="jt-input" type="number" name="Contact"
+                  value={userData.Contact} onChange={handleInputChange}
+                  placeholder="10-digit mobile number" required />
+              </div>
+
+              {/* Budget display */}
+              <div className="jt-budget-chip">
+                <span>💰 Estimated budget per person</span>
+                <span className="jt-budget-amt">₹{Number(trip.estimatedBudget).toLocaleString()}</span>
+              </div>
+
+              <button type="submit" className="jt-submit-btn" disabled={submitting}>
+                {submitting ? "Sending…" : `🚀 ${t("join")}`}
+              </button>
             </form>
           </div>
         </div>
@@ -227,4 +217,4 @@ function JoinTrip() {
   );
 }
 
-export default JoinTrip
+export default JoinTrip;

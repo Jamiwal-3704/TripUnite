@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
-import { FaPaperPlane, FaRobot } from "react-icons/fa";
+import { FaPaperPlane } from "react-icons/fa";
 import tripsy from "../../Assets/tripsy.gif";
 import "./ChatBot.css";
+import { getApiUrl } from "../../util/api";
 
 const ChatBot = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -51,7 +52,7 @@ const ChatBot = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8000/api/v1/chatbot", {
+      const response = await fetch(getApiUrl("/api/v1/chatbot"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -59,14 +60,29 @@ const ChatBot = () => {
         body: JSON.stringify({ userInput: newMessage.text }),
       });
 
+      if (!response.ok) {
+        throw new Error("Chat service unavailable");
+      }
+
       const data = await response.json();
-      let upatedText = data.response.split("*").join("");
+      const upatedText = (
+        data.response || "I could not generate a response right now."
+      )
+        .split("*")
+        .join("");
       setMessages((prevMessages) => [
         ...prevMessages,
         { sender: "bot", text: upatedText },
       ]);
     } catch (error) {
       console.error("Error sending message:", error);
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        {
+          sender: "bot",
+          text: "I am temporarily unavailable. Please try again in a few moments.",
+        },
+      ]);
     } finally {
       setIsLoading(false);
       scrollToBottom();
@@ -82,7 +98,7 @@ const ChatBot = () => {
   return (
     <>
       <div className="chat-bot-toggle" onClick={toggleChat}>
-        <img src={tripsy} />
+        <img src={tripsy} alt="Open Tripsy chatbot" />
       </div>
 
       <div className={`chat-bot ${isOpen ? "open" : ""}`}>

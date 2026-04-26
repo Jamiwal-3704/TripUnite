@@ -22,15 +22,26 @@ const limiter = rateLimit({
 });
 
 const app = express();
-app.use(cors({
-  origin: 'http://localhost:3000', 
-  credentials: true, 
-}));
+const allowedOrigins = (process.env.CORS_ORIGIN || "http://localhost:3000")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
+
+app.set("trust proxy", 1);
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
+  }),
+);
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-
-
 
 //rate limiter
 app.use(limiter);
@@ -43,6 +54,10 @@ app.get("/", (req, res) => {
       process.env.production == "true" ? "production" : "dev"
     }!`,
   });
+});
+
+app.get("/health", (req, res) => {
+  return res.status(200).json({ status: "ok" });
 });
 
 // production routes

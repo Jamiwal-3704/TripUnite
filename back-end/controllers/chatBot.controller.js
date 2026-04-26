@@ -7,9 +7,22 @@ const chatHistory = require("../utils/chatHistory.js"); // Import chat history f
 
 const chatBot = async (req, res) => {
   const apiKey = process.env.GEMINI_API_KEY;
-  const genAI = new GoogleGenerativeAI(apiKey);
-
   const { userInput } = req.body;
+
+  if (!userInput || typeof userInput !== "string") {
+    return res.status(400).json({
+      response: "Please type a valid message so I can help you with your trip.",
+    });
+  }
+
+  if (!apiKey) {
+    return res.status(200).json({
+      response:
+        "Tripsy is currently running in offline mode. Please add GEMINI_API_KEY in backend .env to enable AI responses.",
+    });
+  }
+
+  const genAI = new GoogleGenerativeAI(apiKey);
 
   const model = genAI.getGenerativeModel({
     model: "gemini-1.5-pro",
@@ -31,10 +44,13 @@ const chatBot = async (req, res) => {
     });
 
     const result = await chatSession.sendMessage(userInput);
-    res.json({ response: result.response.text() });
+    return res.json({ response: result.response.text() });
   } catch (error) {
     console.error("Error in chat interaction:", error.message);
-    res.status(500).json({ error: "Failed to process request" });
+    return res.status(200).json({
+      response:
+        "I am having trouble connecting right now. Please try again in a moment.",
+    });
   }
 };
 
